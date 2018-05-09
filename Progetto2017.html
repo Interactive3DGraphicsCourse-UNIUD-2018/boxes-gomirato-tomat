@@ -1,0 +1,782 @@
+<html>
+	<head>
+		<title> progetto2017 secondo atto</title>
+		<style>
+
+		body {
+			font-family: Monospace;
+			background-color: #f0f0f0;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		canvas {
+			width: 100%;
+			height: 100%;
+		}
+
+	</style>
+		<script src="lib/three.min.js"></script>
+		<script src="lib/stats.min.js"></script>
+		<script src="lib/Coordinates.js"></script>
+		<script src="lib/OrbitControls.js"></script>
+		<script src="lib/animaOnde.js"></script>
+		<script src="lib/assets/fishes.js"></script>
+		<script src="lib/assets/creaPalme.js"></script>
+		<script src="lib/assets/waterfall.js"></script>
+		<script src="lib/assets/cave.js"></script>
+		<script src="lib/assets/clouds.js"></script>
+	</head>
+	<body>
+
+		<script>
+
+		var scene, camera, renderer, controls, stats, terreno, mare;
+		var flusso1 = new Array(), flusso2 = new Array(), flusso3 = new Array(), newPos = new THREE.Vector3();
+		var index1=0, index2=0, isTurning = false, goingLeft= true, ang=0.0, reached = true;
+		var t0=0.0, t1=0.0, t3=0.0, w1=0.0, w2=0.0, temp=new Array();
+
+
+		//return array with height data from imgTerreno, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
+		function getHeightData(img,scale) {
+
+		 if (scale == undefined) scale=1;
+
+		    var canvas = document.createElement( 'canvas' );
+		    canvas.width = img.width;
+		    canvas.height = img.height;
+		    var context = canvas.getContext( '2d' );
+
+		    var size = img.width * img.height;
+			  console.log(size);
+		    var data = new Float32Array( size );
+
+		    context.drawImage(img,0,0);
+
+		    for ( var i = 0; i < size; i ++ ) {
+		        data[i] = 0
+		    }
+
+		    var imgd = context.getImageData(0, 0, img.width, img.height);
+		    var pix = imgd.data;
+
+		    var j=0;
+		    for (var i = 0; i<pix.length; i +=4) {
+		        var all = pix[i]+pix[i+1]+pix[i+2];  // all is in range 0 - 255*3
+		        data[j++] = scale*all/3;
+		    }
+
+		    return data;
+		}
+
+		function makeScaleMatrix4(x,y,z){
+
+			var m = new THREE.Matrix4();
+
+			m.set( x, 0, 0, 0,
+			       0, y, 0, 0,
+			       0, 0, z, 0,
+			       0, 0, 0, 1);
+
+			return m;
+		}
+
+
+		function creaVillaggio(n){
+
+			var villaggio = new THREE.Object3D();
+
+			var arrayVillaggio = new Array(6);
+			for(var i=0; i < 6; i++){
+				arrayVillaggio[i] = creaBungalow();
+				villaggio.add(arrayVillaggio[i]);
+			}
+
+			arrayVillaggio[0].position.set(-3,0,-1);
+			arrayVillaggio[1].position.set(0, 0,-1);
+			arrayVillaggio[2].position.set(3, 0,-1);
+			arrayVillaggio[3].position.set(-3,0, 1);
+			arrayVillaggio[4].position.set(0, 0, 1);
+			arrayVillaggio[5].position.set(3, 0, 1);
+
+			return villaggio;
+		}
+
+
+		function creaBungalow(){
+
+			//Creazione bungalow
+			var bungalow = new THREE.Object3D();
+
+			//pareti
+			var wallGeo = new THREE.BoxGeometry(1,1,1);
+			var wallTexture = new THREE.TextureLoader().load('textures/build/wall.jpg');
+			var wallWindowTexture = new THREE.TextureLoader().load('textures/build/wallwindow.jpg');
+			var wallMat = new THREE.MeshBasicMaterial({map:wallTexture, wireframe: false});
+			var wallWinMat = new THREE.MeshBasicMaterial({map:wallWindowTexture, wireframe: false});
+
+			var wall1 = new THREE.Mesh(wallGeo, wallWinMat);
+			bungalow.add(wall1);
+			wall1.position.set(-0.5,0,0);
+
+			var wall2 = new THREE.Mesh(wallGeo, wallWinMat);
+			bungalow.add(wall2);
+			wall2.position.set(0.5,0,0);
+
+			//tetto
+			var roofGeo = new THREE.BoxGeometry(1, 0.8, 0.8);
+			var roofTexture = new THREE.TextureLoader().load('textures/build/roof2.jpg');
+			var roofMat = new THREE.MeshBasicMaterial({map:roofTexture, wireframe: false});
+
+			var roof1 = new THREE.Mesh(roofGeo, roofMat);
+			bungalow.add(roof1);
+			roof1.rotation.x += 45 * Math.PI/180;
+			roof1.position.set(-0.49, 0.5, 0);
+
+			var roof2 = new THREE.Mesh(roofGeo, roofMat);
+			bungalow.add(roof2);
+			roof2.rotation.x += 45 * Math.PI/180;
+			roof2.position.set(0.49, 0.5, 0);
+
+			//supporti della base
+			var feetGeo = new THREE.BoxGeometry(0.1, 0.5, 0.1);
+			var feetTexture = new THREE.TextureLoader().load('textures/build/wood.png');
+			var feetMat = new THREE.MeshBasicMaterial({map:feetTexture, wireframe: false});
+
+			var foot = new Array(10);
+			for(var i=0; i < 10; i++){
+				foot[i]= new THREE.Mesh(feetGeo, feetMat);
+				bungalow.add(foot[i]);
+			}
+
+			foot[0].position.set(-1, -0.5, -0.5);
+			foot[1].position.set(-1, -0.5, 0.5);
+			foot[2].position.set(-0.5, -0.5, -0.5);
+			foot[3].position.set(-0.5, -0.5, 0.5);
+			foot[4].position.set(	0, -0.5, -0.5);
+			foot[5].position.set(	0, -0.5, 0.5);
+			foot[6].position.set(	0.5, -0.5, -0.5);
+			foot[7].position.set(	0.5, -0.5, 0.5);
+			foot[8].position.set(	1, -0.5, -0.5);
+			foot[9].position.set(	1, -0.5, 0.5);
+
+			return bungalow;
+		}
+
+		function aggiungiPalme(){
+
+			var troncoText = new THREE.TextureLoader().load('textures/vegetazione/troncoPalma.jpg');
+			var foglieText = new THREE.TextureLoader().load('textures/vegetazione/fogliePalma.jpg');
+			var palme1 = palme3(troncoText,foglieText);
+
+			palme1.applyMatrix(makeScaleMatrix4(0.1,0.1,0.1));
+			palme1.position.set(-22,5.2,3);
+
+			cosgola1 = creaPalma(troncoText,foglieText);
+			cosgola1.applyMatrix(makeScaleMatrix4(0.1,0.1,0.1));
+			cosgola1.position.set(-12,5,-16);
+
+			palme2 = palme1.clone();
+			palme2.position.set(24,5.2,2);
+
+			palme3 = palme1.clone();
+			palme3.position.set(22,5.2,4);
+
+			palme4 = palme1.clone();
+			palme4.position.set(3,5.2,2);
+
+			scene.add(palme1, palme2, palme3, palme4, cosgola1);
+		}
+
+
+
+		////////////////////////////////////////////////////////////////////////////////////
+		///////////////////////////////  START  ////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////////////////
+		function Start() {
+
+			scene = new THREE.Scene();
+			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			renderer = new THREE.WebGLRenderer( {antialias: true} );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setClearColor( 0x1666e5 );
+			document.body.appendChild( renderer.domElement );
+
+			camera.position.set(-5,15,-5);
+			camera.lookAt( new THREE.Vector3(0,0,0));
+
+
+			stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			document.body.appendChild( stats.domElement );
+
+			// uncomment if you need to draw coordinate axes when building the scene
+			Coordinates.drawAllAxes();
+
+			controls = new THREE.OrbitControls( camera );
+			controls.addEventListener( 'change', Render );
+
+			aggiungiPalme();
+
+			//Geometria del cubo
+			var geometry = new THREE.BoxGeometry(1,1,1);
+
+			// mare
+			var imgMare = new Image();
+			imgMare.onload = function () {
+
+				//get height data from imgMare
+				var dataSea = getHeightData(imgMare,0.1);
+
+				//creazione Mare
+				mare = new Array(imgMare.height);
+
+				for(var i=0; i< mare.length; i++){
+					mare[i] = new Array(imgMare.width);
+				}
+
+        var seaTexture = new THREE.TextureLoader().load( 'textures/surfaceWater2.jpg' );//surfaceWater deepWater
+        var seaMat = new THREE.MeshBasicMaterial({map: seaTexture,
+																									wireframe: false,
+																									transparent: true,
+																									opacity:0.5});
+				var x = 0;
+        for(var i=0; i < imgMare.height; i++){
+
+          for(var j=0; j < imgMare.width; j++){
+
+							mare[i][j] = new THREE.Mesh( geometry, seaMat );
+							mare[i][j].applyMatrix(makeScaleMatrix4(0.99,dataSea[x],1));
+							mare[i][j].position.set( j - (imgMare.width)/2, dataSea[x]/2 +0.1, i - (imgMare.height)/2 -2);
+							scene.add(mare[i][j]);
+							x++;
+          }
+        }
+			}
+      // load imgMare source
+      imgMare.src = "textures/HMmare.png";
+
+
+
+			// Terreno
+			var imgTerreno = new Image();
+			imgTerreno.onload = function () {
+
+				//get height data from imgTerreno
+				var dataTerrain = getHeightData(imgTerreno,0.1);
+
+				//creazione terreno
+				terreno = new Array(imgTerreno.height);
+
+				for(var i=0; i< terreno.length; i++){
+					terreno[i] = new Array(imgTerreno.width);
+				}
+
+        //Materiale per sabbia asciutta
+        var sandtexture = new THREE.TextureLoader().load( 'textures/sand.jpg' );
+        var sandMat = new THREE.MeshBasicMaterial({map: sandtexture, wireframe: false});
+
+				//Materiale pontile
+				var ponttexture = new THREE.TextureLoader().load( 'textures/pontile.jpg' );
+        var pontMat = new THREE.MeshBasicMaterial({map: ponttexture, wireframe: false});
+
+        //Materiale per sabbia bagnata
+        var wetSandTexture = new THREE.TextureLoader().load( 'textures/wetsand3.jpg' );
+        var wetSandMat = new THREE.MeshBasicMaterial({map: wetSandTexture, wireframe: false});
+
+        //materiale fondale marino
+        var seaBedTexture = new THREE.TextureLoader().load( 'textures/seaD2.jpg' );
+        var seaBedMat = new THREE.MeshBasicMaterial({map: seaBedTexture, wireframe: false});
+
+				//materiale alghe
+        var seaWeedTexture = new THREE.TextureLoader().load( 'textures/alghe.jpg' );
+        var seaWeedMat = new THREE.MeshBasicMaterial({map: seaWeedTexture, wireframe: false});
+
+				//materiale foresta
+				var forest1 = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/vegetazione/forestHeight.jpg') } );
+	    	var forest3 = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/vegetazione/treeLeaves.jpg') } );//top
+
+	    	var forestMultiMat = [forest1, forest1, forest3, forest3, forest1, forest1];
+	    	var treeRockMat = new THREE.MultiMaterial( forestMultiMat );
+
+				//materiale roccia pura
+				var rock1 = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/rockHeight.jpg') } );
+	    	var rock3 = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/treeRock.jpg') } );//top
+	    	var rock4 = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/rockTop.jpg') } );//bottom
+
+	    	var rockMultiMat = [rock1, rock1, rock3, rock4, rock1, rock1];
+	    	var rockMat = new THREE.MultiMaterial( rockMultiMat );
+
+				var x = 0;
+
+        for(var i=0; i < imgTerreno.height; i++){
+
+          for(var j=0; j < imgTerreno.width; j++){
+
+						if( 0 <= dataTerrain[x] && dataTerrain[x] < 0.2){
+							terreno[i][j] = new THREE.Mesh( geometry,seaBedMat );
+							terreno[i][j].applyMatrix(makeScaleMatrix4(1,dataTerrain[x],1));
+							terreno[i][j].position.set( j - (imgTerreno.width)/2, dataTerrain[x]/2, i - (imgTerreno.height)/2);
+							scene.add(terreno[i][j]);
+							x++;
+
+						}else if(dataTerrain[x] >= 0.2 && dataTerrain[x] < 1){
+							terreno[i][j] = new THREE.Mesh( geometry, seaWeedMat);
+							terreno[i][j].applyMatrix(makeScaleMatrix4(1,dataTerrain[x],1));
+							terreno[i][j].position.set( j - (imgTerreno.width)/2, dataTerrain[x]/2, i - (imgTerreno.height)/2);
+							scene.add(terreno[i][j]);
+							x++;
+
+						}else if(dataTerrain[x] >= 1 && dataTerrain[x] < 5){
+							terreno[i][j] = new THREE.Mesh( geometry,wetSandMat );
+							terreno[i][j].applyMatrix(makeScaleMatrix4(1,dataTerrain[x],1));
+							terreno[i][j].position.set( j - (imgTerreno.width)/2, dataTerrain[x]/2, i - (imgTerreno.height)/2);
+							scene.add(terreno[i][j]);
+							x++;
+
+						}else if(dataTerrain[x] >= 5 && dataTerrain[x] < 5.4){
+							terreno[i][j] = new THREE.Mesh( geometry,sandMat );
+							terreno[i][j].applyMatrix(makeScaleMatrix4(1,dataTerrain[x],1));
+							terreno[i][j].position.set( j - (imgTerreno.width)/2, dataTerrain[x]/2, i - (imgTerreno.height)/2);
+							scene.add(terreno[i][j]);
+							x++;
+
+						}else if(dataTerrain[x] >= 5.4 && dataTerrain[x] < 5.5){
+							terreno[i][j] = new THREE.Mesh( geometry,pontMat );
+							terreno[i][j].applyMatrix(makeScaleMatrix4(1,dataTerrain[x],1));
+							terreno[i][j].position.set( j - (imgTerreno.width)/2, dataTerrain[x]/2 + 0.1, i - (imgTerreno.height)/2);
+							scene.add(terreno[i][j]);
+							x++;
+
+						}else if(dataTerrain[x] >= 5.5 && dataTerrain[x] <= 16){
+							terreno[i][j] = new THREE.Mesh( geometry, treeRockMat );
+							terreno[i][j].applyMatrix(makeScaleMatrix4(1,dataTerrain[x],1));
+							terreno[i][j].position.set( j - (imgTerreno.width)/2, dataTerrain[x]/2, i - (imgTerreno.height)/2);
+							scene.add(terreno[i][j]);
+							x++;
+
+						}else{
+							terreno[i][j] = new THREE.Mesh( geometry, rockMat );
+							terreno[i][j].applyMatrix(makeScaleMatrix4(1,dataTerrain[x],1));
+							terreno[i][j].position.set( j - (imgTerreno.width)/2, dataTerrain[x]/2, i - (imgTerreno.height)/2);
+							scene.add(terreno[i][j]);
+							x++;
+
+						}
+          }
+        }
+			}
+			imgTerreno.src = "textures/heightmapP1.png";
+
+
+			bungalow = creaBungalow();
+			bungalow.applyMatrix(makeScaleMatrix4(0.5,0.5,0.5));
+			bungalow.position.set(-1, 5.5, 10 );
+			scene.add(bungalow);
+
+			bungalow2 = bungalow.clone();
+			bungalow2.position.set(-10.5, 5.7, -16);
+
+			bungalow3 = bungalow.clone();
+			bungalow3.position.set(22, 5.7, -15);
+			scene.add(bungalow2, bungalow3);
+
+			villaggio1 = creaVillaggio(6);
+			villaggio1.applyMatrix(makeScaleMatrix4(0.5,0.5,0.5));
+			villaggio1.position.set(-25, 5.5, 2);
+			scene.add(villaggio1);
+
+			villaggio2 = villaggio1.clone()
+			villaggio2.position.set(0, 5.5, 2);
+			scene.add(villaggio2);
+
+
+			//////////// CREAZIONE CASCATA ////////////////
+
+			//inizializzo il vettore temporizzatore
+			temp[0] = 150;
+			for(var i=1; i< 22; i++){
+				temp[i] = temp[i-1] + 100;
+			}
+
+			cave = new makeCave(new THREE.TextureLoader().load('textures/mont/rock2.jpg'),
+													new THREE.TextureLoader().load('textures/mont/caveHall.jpg'),
+													1);
+			cave.rotation.y += 225*Math.PI/180;
+			cave.position.set(27.5,20.5,21.5);
+			scene.add(cave);
+
+			//Letto Cascata
+			var lettoCascataTopMat = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/lettoCascata.png') } );
+			var paretiLetto = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/rock2.jpg') } );
+			var lettoCascataMultiMat = [paretiLetto, paretiLetto, lettoCascataTopMat, paretiLetto, paretiLetto, paretiLetto];
+			var lettoCascataMat = new THREE.MultiMaterial( lettoCascataMultiMat );
+			var lettoCascata = new THREE.Mesh(new THREE.BoxGeometry(1,1,1),lettoCascataMat);
+			lettoCascata.rotation.y = 180*Math.PI/180;
+			lettoCascata.position.set(26.9,19.8,20.9);
+			scene.add(lettoCascata);
+
+			var lago = new THREE.Mesh(	new THREE.BoxGeometry(3,1,3),
+																					new THREE.MeshBasicMaterial({map:	new THREE.TextureLoader().load('textures/waterfall.jpg')}));
+			lago.position.set(26.1,15,20);
+			scene.add(lago);
+			/*
+			var lettoCascata = new THREE.Mesh(	new THREE.BoxGeometry(2,1,2),
+																					new THREE.MeshBasicMaterial({map:	new THREE.TextureLoader().load('textures/waterfall.jpg')}));
+																					*/
+			points1 = new Array();
+			points1.push(	new THREE.Vector3(27,20,21),
+										new THREE.Vector3(27-Math.sin(120*Math.PI/180), 20, 21+Math.cos(120*Math.PI/180)),
+										new THREE.Vector3(27-Math.sin(120*Math.PI/180), 18, 21+Math.cos(120*Math.PI/180)),
+										new THREE.Vector3(27-Math.sin(120*Math.PI/180), 15, 21+Math.cos(120*Math.PI/180)),
+										new THREE.Vector3(27,15,21));
+
+			points2 = new Array();
+			points2.push(	new THREE.Vector3(27,20,21),
+										new THREE.Vector3(27-Math.sin(135*Math.PI/180), 20, 21+Math.cos(135*Math.PI/180)),
+										new THREE.Vector3(27-Math.sin(135*Math.PI/180), 18, 21+Math.cos(135*Math.PI/180)),
+										new THREE.Vector3(27-Math.sin(135*Math.PI/180), 15, 21+Math.cos(135*Math.PI/180)),
+										new THREE.Vector3(27,15,21));
+
+			points3 = new Array();
+			points3.push(	new THREE.Vector3(27,20,21),
+										new THREE.Vector3(27-Math.sin(150*Math.PI/180), 20, 21+Math.cos(150*Math.PI/180)),
+										new THREE.Vector3(27-Math.sin(150*Math.PI/180), 18, 21+Math.cos(150*Math.PI/180)),
+										new THREE.Vector3(27-Math.sin(150*Math.PI/180), 15, 21+Math.cos(150*Math.PI/180)),
+										new THREE.Vector3(27,15,21));
+
+			for(var i=0; i<22;i++){
+				flusso1.push(	new cubeWaterfall(new THREE.TextureLoader().load( 'textures/waterfall2.jpg' ), 0.3));
+				flusso2.push( new cubeWaterfall(new THREE.TextureLoader().load( 'textures/waterfall2.jpg' ), 0.3));
+				flusso3.push( new cubeWaterfall(new THREE.TextureLoader().load( 'textures/waterfall2.jpg' ), 0.3));
+			}
+
+			for(var i=0; i< flusso1.length; i++){
+				scene.add(flusso1[i].mesh, flusso2[i].mesh, flusso3[i].mesh);
+			}
+
+			curva1 = creaCurvaCascata(points1);
+			curva2 = creaCurvaCascata(points2);
+			curva3 = creaCurvaCascata(points3);
+
+			///// NUVOLE /////
+			var cloud1 = new creaNuvolaT(5);
+			scene.add(cloud1);
+			cloud1.position.set(-20,35,-35);
+
+			var cloud2 = new creaNuvolaL(5);
+			scene.add(cloud2);
+			cloud2.position.set(20,35,-25);
+
+			var cloud3 = new creaNuvolaO(5);
+			scene.add(cloud3);
+			cloud3.position.set(0,30,5);
+
+			var cloud4 = new creaNuvolaT(3);
+			scene.add(cloud4);
+			cloud4.position.set(-20,35,30);
+
+			var cloud5 = new creaNuvolaL(3);
+			scene.add(cloud5);
+			cloud5.position.set(15,30,25);
+			cloud5.rotation.y = 180*Math.PI/180;
+
+
+
+			//////// Popolazione mare ////////
+
+			//creazione squalo::: backTexture, bellyTexture, flankTexture
+			sharkPivot = new THREE.Object3D();
+			var shark = new makeShark(	new THREE.TextureLoader().load('textures/fishes/shark/back.jpg'),
+																	new THREE.TextureLoader().load('textures/fishes/shark/belly.jpg'),
+																	new THREE.TextureLoader().load('textures/fishes/shark/flank.jpg'));
+
+			sharkPivot.add(shark);
+			shark.applyMatrix(makeScaleMatrix4(0.5,0.5,0.5));
+			scene.add(sharkPivot);
+			sharkPivot.position.set(0,4.5,-35);
+			shark.position.set(0,0,2);
+
+			//creazione Pesci:: dim, texture squame, texture pinne
+			fishPivot = new THREE.Object3D();
+			cFish1 = makeColoredFish( 1, new THREE.TextureLoader().load('textures/fishes/fish/squame/s1.jpg'),
+																	new THREE.TextureLoader().load('textures/fishes/fish/pinne/color1.jpg'));
+			/*cFish2 = makeColoredFish( 1, new THREE.TextureLoader().load('textures/fishes/fish/squame/s2.jpg'),
+																	new THREE.TextureLoader().load('textures/fishes/fish/pinne/color2.jpg'));
+			cFish3 = makeColoredFish( 1, new THREE.TextureLoader().load('textures/fishes/fish/squame/s3.jpg'),
+																	new THREE.TextureLoader().load('textures/fishes/fish/pinne/color3.jpg'));
+			cFish4 = makeColoredFish( 1, new THREE.TextureLoader().load('textures/fishes/fish/squame/s4.jpg'),
+																	new THREE.TextureLoader().load('textures/fishes/fish/pinne/color4.jpg'));*/
+
+			cFish1.applyMatrix(makeScaleMatrix4(0.1,0.1,0.1));
+			//fishPivot.add(cFish1, cFish2, cFish3, cFish4);
+			fishPivot.add(cFish1);
+			scene.add(fishPivot);
+			fishPivot.position.set(10, 1.5, -30);
+
+			//inizializzazione tempi
+			t0 = Date.now();
+			w1 = Date.now();
+
+		}
+
+
+		function animazioneAcqua(){
+
+			///////// ANIMAZIONE CASCATA /////////
+			w2 = Date.now();
+
+
+			if(w2-w1 > temp[0]){
+				animaCascata(curva1, flusso1[0]);
+				animaCascata(curva2, flusso2[0]);
+				animaCascata(curva3, flusso3[0]);
+
+			}
+			if(w2-w1 > temp[1]){
+				animaCascata(curva1, flusso1[1]);
+				animaCascata(curva2, flusso2[1]);
+				animaCascata(curva3, flusso3[1]);
+
+			}
+			if(w2-w1 > temp[2]){
+				animaCascata(curva1, flusso1[2]);
+				animaCascata(curva2, flusso2[2]);
+				animaCascata(curva3, flusso3[2]);
+
+			}
+			if(w2-w1 > temp[3]){
+				animaCascata(curva1, flusso1[3]);
+				animaCascata(curva2, flusso2[3]);
+				animaCascata(curva3, flusso3[3]);
+
+			}
+			if(w2-w1 > temp[4]){
+				animaCascata(curva1, flusso1[4]);
+				animaCascata(curva2, flusso2[4]);
+				animaCascata(curva3, flusso3[4]);
+
+			}
+			if(w2-w1 > temp[5]){
+				animaCascata(curva1, flusso1[5]);
+				animaCascata(curva2, flusso2[5]);
+				animaCascata(curva3, flusso3[5]);
+
+			}
+			if(w2-w1 > temp[6]){
+				animaCascata(curva1, flusso1[6]);
+				animaCascata(curva2, flusso2[6]);
+				animaCascata(curva3, flusso3[6]);
+
+			}
+			if(w2-w1 > temp[7]){
+				animaCascata(curva1, flusso1[7]);
+				animaCascata(curva2, flusso2[7]);
+				animaCascata(curva3, flusso3[7]);
+
+			}
+			if(w2-w1 > temp[8]){
+				animaCascata(curva1, flusso1[8]);
+				animaCascata(curva2, flusso2[8]);
+				animaCascata(curva3, flusso3[8]);
+
+			}
+			if(w2-w1 > temp[9]){
+				animaCascata(curva1, flusso1[9]);
+				animaCascata(curva2, flusso2[9]);
+				animaCascata(curva3, flusso3[9]);
+
+			}
+			if(w2-w1 > temp[10]){
+				animaCascata(curva1, flusso1[10]);
+				animaCascata(curva2, flusso2[10]);
+				animaCascata(curva3, flusso3[10]);
+
+			}
+			if(w2-w1 > temp[11]){
+				animaCascata(curva1, flusso1[11]);
+				animaCascata(curva2, flusso2[11]);
+				animaCascata(curva3, flusso3[11]);
+
+			}
+			if(w2-w1 > temp[12]){
+				animaCascata(curva1, flusso1[12]);
+				animaCascata(curva2, flusso2[12]);
+				animaCascata(curva3, flusso3[12]);
+
+			}
+			if(w2-w1 > temp[13]){
+				animaCascata(curva1, flusso1[13]);
+				animaCascata(curva2, flusso2[13]);
+				animaCascata(curva3, flusso3[13]);
+
+			}
+			if(w2-w1 > temp[14]){
+				animaCascata(curva1, flusso1[14]);
+				animaCascata(curva2, flusso2[14]);
+				animaCascata(curva3, flusso3[14]);
+
+			}
+			if(w2-w1 > temp[15]){
+				animaCascata(curva1, flusso1[15]);
+				animaCascata(curva2, flusso2[15]);
+				animaCascata(curva3, flusso3[15]);
+
+			}
+			if(w2-w1 > temp[16]){
+				animaCascata(curva1, flusso1[16]);
+				animaCascata(curva2, flusso2[16]);
+				animaCascata(curva3, flusso3[16]);
+
+			}
+			if(w2-w1 > temp[17]){
+				animaCascata(curva1, flusso1[17]);
+				animaCascata(curva2, flusso2[17]);
+				animaCascata(curva3, flusso3[17]);
+
+			}
+			if(w2-w1 > temp[18]){
+				animaCascata(curva1, flusso1[18]);
+				animaCascata(curva2, flusso2[18]);
+				animaCascata(curva3, flusso3[18]);
+
+			}
+			if(w2-w1 > temp[19]){
+				animaCascata(curva1, flusso1[19]);
+				animaCascata(curva2, flusso2[19]);
+				animaCascata(curva3, flusso3[19]);
+
+			}
+			if(w2-w1 > temp[20]){
+				animaCascata(curva1, flusso1[20]);
+				animaCascata(curva2, flusso2[20]);
+				animaCascata(curva3, flusso3[20]);
+
+			}
+			if(w2-w1 > temp[21]){
+				animaCascata(curva1, flusso1[21]);
+				animaCascata(curva2, flusso2[21]);
+				animaCascata(curva3, flusso3[21]);
+
+			}
+
+			///////// ANIMAZIONE MARE /////////
+			t1 = Date.now();
+
+			if(t1-t0 >90){
+				index1 = muoviOnde(mare, index1);
+				t0 = Date.now();
+				t3 = Date.now();
+
+			}//if
+
+			if(t1 - t3 > 40){
+				index2 = muoviOnde(mare, index2);
+				t3 = Date.now();
+
+			}
+
+		}
+
+
+		function animazioneFauna(){
+
+			/////////////// ANIMAZIONE SQUALO
+			if(isTurning){
+				if(ang > 3.14 && goingLeft){
+					isTurning = false;
+					sharkPivot.position.x += 0.1;
+					goingLeft = false;
+
+				}else if(ang > 6.24){
+					ang=0;
+					goingLeft = true;
+					sharkPivot.position.x -= 0.1;
+					isTurning = false;
+
+				}else{
+					ang+= 0.05;
+					sharkPivot.rotation.y = -ang;
+					}
+
+			}else{
+				if(sharkPivot.position.x >= 20 || sharkPivot.position.x <= -20){
+					isTurning = true;
+				}else{
+					if(goingLeft){
+					 	sharkPivot.position.x -= 0.1;
+					}else{
+						sharkPivot.position.x += 0.1;
+					}
+				}
+			}
+
+			/////////////// ANIMAZIONE PESCE RDM
+
+			var pos = cFish1.position;
+			
+			if(reached == true){
+
+				var num = Math.ceil(Math.random()*20) -5;
+				var y = 	Math.ceil(Math.random()*2);
+				newPos = new THREE.Vector3( 	Math.ceil(Math.random()*10),
+																			Math.ceil(Math.random()*3),
+																			Math.ceil(Math.random()*10));
+
+				reached = false;
+				cFish1.lookAt(newPos);
+			}
+
+			if((Math.floor(pos.x) == newPos.x) && (Math.floor(pos.y) == newPos.y) && (Math.floor(pos.z) == newPos.z)){
+				reached = true;
+
+			}else{
+				if(Math.floor(pos.x) != newPos.x){
+					if(pos.x < newPos.x ){ //TODO: cFish deve tornare indietro, devo girarlo
+						cFish1.position.x+=0.05;
+
+					}else{
+						cFish1.position.x-=0.05;
+					}
+				}
+				if(Math.floor(pos.y) != newPos.y){
+					if(pos.y < newPos.y ){ //cFish deve tornare indietro, devo girarlo
+						cFish1.position.y+=0.05;
+
+					}else{
+						cFish1.position.y-=0.05;
+					}
+				}
+				if(Math.floor(pos.z) != newPos.z){
+					if(pos.z < newPos.z ){ //cFish deve tornare indietro, devo girarlo
+						cFish1.position.z+=0.05;
+
+					}else{
+						cFish1.position.z-=0.05;
+					}
+				}
+			}
+		}
+
+		function Update() {
+			requestAnimationFrame( Update );
+			animazioneAcqua();
+			animazioneFauna();
+			controls.update();
+			stats.update();
+			Render();
+
+		}
+
+		function Render() {
+			renderer.render(scene, camera);
+
+		}
+
+		Start();
+		Update();
+
+		</script>
+	</body>
+</html>
