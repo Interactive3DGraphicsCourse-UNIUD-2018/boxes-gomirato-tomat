@@ -21,8 +21,9 @@
 		<script src="lib/Coordinates.js"></script>
 		<script src="lib/OrbitControls.js"></script>
 		<script src="lib/animaOnde.js"></script>
+		<script src="lib/animaPesci.js"></script>
 		<script src="lib/assets/fishes.js"></script>
-		<script src="lib/assets/creaPalme.js"></script>
+		<script src="lib/assets/palme.js"></script>
 		<script src="lib/assets/waterfall.js"></script>
 		<script src="lib/assets/cave.js"></script>
 		<script src="lib/assets/clouds.js"></script>
@@ -33,7 +34,7 @@
 
 		var scene, camera, renderer, controls, stats, terreno, mare;
 		var flusso1 = new Array(), flusso2 = new Array(), flusso3 = new Array(), newPos = new THREE.Vector3();
-		var index1=0, index2=0, isTurning = false, goingLeft= true, ang=0.0, reached = true;
+		var index1=0, index2=0;
 		var t0=0.0, t1=0.0, t3=0.0, w1=0.0, w2=0.0, temp=new Array();
 
 
@@ -400,7 +401,7 @@
 				temp[i] = temp[i-1] + 100;
 			}
 
-			cave = new makeCave(new THREE.TextureLoader().load('textures/mont/rock2.jpg'),
+			cave = new makeCave(new THREE.TextureLoader().load('textures/mont/rock2.2.jpg'),
 													new THREE.TextureLoader().load('textures/mont/caveHall.jpg'),
 													1);
 			cave.rotation.y += 225*Math.PI/180;
@@ -409,7 +410,7 @@
 
 			//Letto Cascata
 			var lettoCascataTopMat = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/lettoCascata.png') } );
-			var paretiLetto = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/rock2.jpg') } );
+			var paretiLetto = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/rock2.2.jpg') } );
 			var lettoCascataMultiMat = [paretiLetto, paretiLetto, lettoCascataTopMat, paretiLetto, paretiLetto, paretiLetto];
 			var lettoCascataMat = new THREE.MultiMaterial( lettoCascataMultiMat );
 			var lettoCascata = new THREE.Mesh(new THREE.BoxGeometry(1,1,1),lettoCascataMat);
@@ -509,8 +510,8 @@
 			cFish4 = makeColoredFish( 1, new THREE.TextureLoader().load('textures/fishes/fish/squame/s4.jpg'),
 																	new THREE.TextureLoader().load('textures/fishes/fish/pinne/color4.jpg'));*/
 
-			cFish1.applyMatrix(makeScaleMatrix4(0.1,0.1,0.1));
-			//fishPivot.add(cFish1, cFish2, cFish3, cFish4);
+			//cFish1.applyMatrix(makeScaleMatrix4(0.1,0.1,0.1));
+			//cFish2.applyMatrix(makeScaleMatrix4(0.1,0.1,0.1));
 			fishPivot.add(cFish1);
 			scene.add(fishPivot);
 			fishPivot.position.set(10, 1.5, -30);
@@ -676,93 +677,17 @@
 				t3 = Date.now();
 
 			}
-
 		}
 
-
-		function animazioneFauna(){
-
-			/////////////// ANIMAZIONE SQUALO
-			if(isTurning){
-				if(ang > 3.14 && goingLeft){
-					isTurning = false;
-					sharkPivot.position.x += 0.1;
-					goingLeft = false;
-
-				}else if(ang > 6.24){
-					ang=0;
-					goingLeft = true;
-					sharkPivot.position.x -= 0.1;
-					isTurning = false;
-
-				}else{
-					ang+= 0.05;
-					sharkPivot.rotation.y = -ang;
-					}
-
-			}else{
-				if(sharkPivot.position.x >= 20 || sharkPivot.position.x <= -20){
-					isTurning = true;
-				}else{
-					if(goingLeft){
-					 	sharkPivot.position.x -= 0.1;
-					}else{
-						sharkPivot.position.x += 0.1;
-					}
-				}
-			}
-
-			/////////////// ANIMAZIONE PESCE RDM
-
-			var pos = cFish1.position;
-			
-			if(reached == true){
-
-				var num = Math.ceil(Math.random()*20) -5;
-				var y = 	Math.ceil(Math.random()*2);
-				newPos = new THREE.Vector3( 	Math.ceil(Math.random()*10),
-																			Math.ceil(Math.random()*3),
-																			Math.ceil(Math.random()*10));
-
-				reached = false;
-				cFish1.lookAt(newPos);
-			}
-
-			if((Math.floor(pos.x) == newPos.x) && (Math.floor(pos.y) == newPos.y) && (Math.floor(pos.z) == newPos.z)){
-				reached = true;
-
-			}else{
-				if(Math.floor(pos.x) != newPos.x){
-					if(pos.x < newPos.x ){ //TODO: cFish deve tornare indietro, devo girarlo
-						cFish1.position.x+=0.05;
-
-					}else{
-						cFish1.position.x-=0.05;
-					}
-				}
-				if(Math.floor(pos.y) != newPos.y){
-					if(pos.y < newPos.y ){ //cFish deve tornare indietro, devo girarlo
-						cFish1.position.y+=0.05;
-
-					}else{
-						cFish1.position.y-=0.05;
-					}
-				}
-				if(Math.floor(pos.z) != newPos.z){
-					if(pos.z < newPos.z ){ //cFish deve tornare indietro, devo girarlo
-						cFish1.position.z+=0.05;
-
-					}else{
-						cFish1.position.z-=0.05;
-					}
-				}
-			}
-		}
 
 		function Update() {
 			requestAnimationFrame( Update );
+
 			animazioneAcqua();
-			animazioneFauna();
+
+			rdmSwim(cFish1);
+			horizontalSwim(sharkPivot);
+
 			controls.update();
 			stats.update();
 			Render();
