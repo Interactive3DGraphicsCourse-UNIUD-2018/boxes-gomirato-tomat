@@ -203,7 +203,7 @@
 			renderer.setClearColor( 0x1666e5 );
 			document.body.appendChild( renderer.domElement );
 
-			camera.position.set(-5,15,-5);
+			camera.position.set(-5,45,-65);
 			camera.lookAt( new THREE.Vector3(0,0,0));
 
 
@@ -464,6 +464,7 @@
 			///// NUVOLE /////
 			var cloud1 = new creaNuvolaT(5);
 			scene.add(cloud1);
+			cloud1.rotation.y += 3.14;
 			cloud1.position.set(-20,35,-35);
 
 			var cloud2 = new creaNuvolaL(5);
@@ -682,7 +683,7 @@
 
 		function Update() {
 			requestAnimationFrame( Update );
-
+			scene.rotation.y += 0.01;
 			animazioneAcqua();
 
 			rdmSwim(cFish1);
