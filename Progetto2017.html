@@ -283,7 +283,7 @@
         var pontMat = new THREE.MeshBasicMaterial({map: ponttexture, wireframe: false});
 
         //Materiale per sabbia bagnata
-        var wetSandTexture = new THREE.TextureLoader().load( 'textures/wetsand3.jpg' );
+        var wetSandTexture = new THREE.TextureLoader().load( 'textures/wetsand33.jpg' );
         var wetSandMat = new THREE.MeshBasicMaterial({map: wetSandTexture, wireframe: false});
 
         //materiale fondale marino
@@ -295,16 +295,25 @@
         var seaWeedMat = new THREE.MeshBasicMaterial({map: seaWeedTexture, wireframe: false});
 
 				//materiale foresta
-				var forest1 = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/vegetazione/forestHeight.jpg') } );
+				var txrForestSide = new THREE.TextureLoader().load('textures/vegetazione/forestSide2.jpg');
+				//txrForestSide.wrapS = THREE.RepeatWrapping;
+	      txrForestSide.wrapT = THREE.RepeatWrapping;
+	      txrForestSide.repeat.set( 1, 8 );
+
+				var forest1 = new THREE.MeshBasicMaterial( { map: txrForestSide } );
 	    	var forest3 = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/vegetazione/treeLeaves.jpg') } );//top
 
 	    	var forestMultiMat = [forest1, forest1, forest3, forest3, forest1, forest1];
 	    	var treeRockMat = new THREE.MultiMaterial( forestMultiMat );
 
 				//materiale roccia pura
-				var rock1 = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/rockHeight.jpg') } );
-	    	var rock3 = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/treeRock.jpg') } );//top
-	    	var rock4 = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/rockTop.jpg') } );//bottom
+				var txrRockSide = new THREE.TextureLoader().load('textures/mont/rockSeamless.jpg');
+				txrRockSide.wrapT = THREE.RepeatWrapping;
+				txrRockSide.repeat.set( 1, 12 );
+
+				var rock1 = new THREE.MeshBasicMaterial( { map: txrRockSide } );
+	    	var rock3 = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/rockSeamless2.jpg') } );//top
+	    	var rock4 = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/rockSeamless2.jpg') } );//bottom
 
 	    	var rockMultiMat = [rock1, rock1, rock3, rock4, rock1, rock1];
 	    	var rockMat = new THREE.MultiMaterial( rockMultiMat );
@@ -401,7 +410,7 @@
 				temp[i] = temp[i-1] + 100;
 			}
 
-			cave = new makeCave(new THREE.TextureLoader().load('textures/mont/rock2.2.jpg'),
+			cave = new makeCave(new THREE.TextureLoader().load('textures/mont/rockSeamless.jpg'),
 													new THREE.TextureLoader().load('textures/mont/caveHall.jpg'),
 													1);
 			cave.rotation.y += 225*Math.PI/180;
@@ -410,7 +419,7 @@
 
 			//Letto Cascata
 			var lettoCascataTopMat = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/lettoCascata.png') } );
-			var paretiLetto = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/rock2.2.jpg') } );
+			var paretiLetto = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load('textures/mont/rockSeamless.jpg') } );
 			var lettoCascataMultiMat = [paretiLetto, paretiLetto, lettoCascataTopMat, paretiLetto, paretiLetto, paretiLetto];
 			var lettoCascataMat = new THREE.MultiMaterial( lettoCascataMultiMat );
 			var lettoCascata = new THREE.Mesh(new THREE.BoxGeometry(1,1,1),lettoCascataMat);
