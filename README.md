@@ -1,6 +1,6 @@
 # Modeling and rendering with boxes
 
-![Image from Minecraft](https://www.greenme.it/immagini/2017/abitare/cani-gatti-co/gatti-siberia.jpg)
+![Image from Minecraft](screenshot/newTexture2.png)
 
 ## Prerequisites
 
