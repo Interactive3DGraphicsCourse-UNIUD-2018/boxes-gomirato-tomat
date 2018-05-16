@@ -1,6 +1,6 @@
-## Modeling and rendering with boxes
+# Modeling and rendering with boxes - Gomirato - Tomat
 
-![Image from Minecraft](screenshot/newTexture2.png)
+![preview](screenshot/newTexture2.png "project preview")
 
 ## Prerequisites
 
