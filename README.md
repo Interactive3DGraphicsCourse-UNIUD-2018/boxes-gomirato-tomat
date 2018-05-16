@@ -1,4 +1,4 @@
-# Modeling and rendering with boxes
+## Modeling and rendering with boxes
 
 ![Image from Minecraft](screenshot/newTexture2.png)
 
