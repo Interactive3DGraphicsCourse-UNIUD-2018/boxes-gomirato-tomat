@@ -45,7 +45,7 @@ Per ciò che riguarda l'animazione dei pesci:
 ![preview](screenshot/prototipo spiaggia4.png)
 
 ### aggiunta del mare
-[preview](screenshot/prototipo spiaggia3.png)
+![preview](screenshot/prototipo spiaggia3.png)
 ![preview](screenshot/mare.png)
 ![preview](screenshot/mare2.png)
 
