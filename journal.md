@@ -10,6 +10,7 @@
 
 ## 14/04/18
 - creazione pesci colorati
+- creazione assets vari
 - aggiunta file .js per creare assets e gestire animazioni
 
 ## 20/04/18
