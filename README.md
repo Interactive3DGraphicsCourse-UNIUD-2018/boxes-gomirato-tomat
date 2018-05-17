@@ -8,7 +8,7 @@ E' stato riscontrato che, nei calcolatori dotati di schede video non sufficiente
 
 Per poter riprodurre correttamente il progetto è necessario eseguirlo in locale. Per farlo ho usato XAMPP. Vedere documentazione THREE.js per ulteriori chiarimenti.
 
-E' presente un artefatto sotto il terreno, un cubo che compone il mare, causato dalla sua animazione. Il motivo non è ancora noto. Toglieno l'animazione per le onde, l'artefatto sparisce.
+E' presente un artefatto sotto il terreno, un cubo che compone il mare, causato dalla sua animazione. Il motivo non è ancora noto. Togliendo l'animazione per le onde, l'artefatto sparisce.
 
 
 
@@ -20,7 +20,7 @@ In questo progetto è stata ricreata una spiaggia utilizzando come geometria sol
 
 ## Gli assets
 
-Gli elementi della spiaggia che non sono generati dalle height map sono stati definiti in file .js esterni. Nel file principale .html viene richiamata una classe( file .js) per ogni elemento da aggiungere alla scena. Gli assets vengono poi aggiunti e posizionati staticamente.
+Gli elementi della spiaggia che non sono generati dalle height map sono stati quasi tutti definiti in file .js esterni. Nel file principale .html viene richiamata una classe( file .js) per ogni elemento da aggiungere alla scena. Gli assets vengono poi aggiunti e posizionati staticamente.
 Il mare è composto da una matrice di cubi, generati da una height map apposita.
 Per le montagne, la foresta, alcune parti della cascata e lo squalo è stato usato un materiale di tipo  MultiMaterial.
 
