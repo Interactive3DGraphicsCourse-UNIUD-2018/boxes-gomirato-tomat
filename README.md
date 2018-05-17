@@ -22,9 +22,10 @@ In questo progetto è stata ricreata una spiaggia utilizzando come geometria sol
 
 Gli elementi della spiaggia che non sono generati dalle height map sono stati definiti in file .js esterni. Nel file principale .html viene richiamata una classe( file .js) per ogni elemento da aggiungere alla scena. Gli assets vengono poi aggiunti e posizionati staticamente.
 Il mare è composto da una matrice di cubi, generati da una height map apposita.
-Per le montagne, la foresta e alcune parti della cascata è stato usato un materiale di tipo  MultiMaterial.
+Per le montagne, la foresta, alcune parti della cascata e lo squalo è stato usato un materiale di tipo  MultiMaterial.
 
-
+### Alcuni assets
+![assets](screenshot/assets.png)
 
 ## Le animazioni
 
@@ -34,7 +35,7 @@ Il mare viene animato chiamando una funzione che trasla verso +Y due file di cub
 
 Per ciò che riguarda l'animazione dei pesci:
 - lo squalo si muove grazie ad un pivot. Infatti ciò che si muove realmente è quest'ultimo; lo squalo si muove di conseguenza dato che è "figlio" nella gerarchia. Quando il pivot raggiunge un punto limite all'interno della scena, non fa altro che ruotare su se stesso di 180° e tornare indietro. Il processo si ripete quando raggiunge il punto limite opposto.
-- per i pesci è stata sfruttata anche qui una spline. I punti però invece che essere statici, vengono calcolati in maniera casuale. Una volta che la spline ha interpolato tutti i punti fornitegli, ne vengono calcolati di nuovi, sempre in maniera random.
+- per i pesci è stata scritta una struttura dati per ognuno di essi. All'interno di questa è presente la mesh che li rappresenta nella scena più degli attributi per la loro mobilità. Una funzione che prende come input l'intera struttura dati è responsabile dell'animazione del singolo pesce, e lo fa andando a verificare gli attributi della struttura modificandoli in base alla necessità. Tutti i pesci si muovono in maniera random all'interno della scena, ma, avendo tutti il medesimo algoritmo che li fa muovere, si sposterebbero contemporaneamente nelle stesse direzioni. Non molto realistico. Per ovviare a questo problema è stato introdotto un attributo 'speed' all'interno della struttura dati del pesce in modo da poter scegliere con quale velocità la mesh avrebbe raggiunto il successivo punto random. Impostando diversamente la velocità di ogni pesce, si crea l'illusione che stiano seguendo percorsi differenti.
 
 
 ## Alcuni screenshot delle fasi del progetto
