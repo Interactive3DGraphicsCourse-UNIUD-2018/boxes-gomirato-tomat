@@ -20,7 +20,7 @@ In questo progetto è stata ricreata una spiaggia utilizzando come geometria sol
 
 ## Gli assets
 
-Gli elementi della spiaggia che non sono generati dalle height map sono stati definiti in file .js esterni. Nel file principale .html viene richiamata una classe( file .js) per ogni elemento da aggiungere alla scena. Gli assets vengono poi aggiunti e posizionati staticamnete.
+Gli elementi della spiaggia che non sono generati dalle height map sono stati definiti in file .js esterni. Nel file principale .html viene richiamata una classe( file .js) per ogni elemento da aggiungere alla scena. Gli assets vengono poi aggiunti e posizionati staticamente.
 Il mare è composto da una matrice di cubi, generati da una height map apposita.
 Per le montagne, la foresta e alcune parti della cascata è stato usato un materiale di tipo  MultiMaterial.
 
