@@ -40,6 +40,10 @@ Per ciò che riguarda l'animazione dei pesci:
 ## Alcuni screenshot delle fasi del progetto
 
 ### primi prototipi
+<p align="center">
+  <img src="screenshot/prototipo spiaggia.jpg"/>
+  <img src="your_relative_path_here_number_2_large_name" width="350"/>
+</p>
 ![preview](screenshot/prototipo spiaggia.jpg)
 ![preview](screenshot/prototipo spiaggia2.jpg)
 ![preview](screenshot/prototipo spiaggia4.png)
