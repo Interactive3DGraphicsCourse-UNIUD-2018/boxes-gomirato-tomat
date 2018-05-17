@@ -42,23 +42,27 @@ Per ciò che riguarda l'animazione dei pesci:
 ### primi prototipi
 <p align="center">
   <img src="screenshot/prototipo spiaggia.jpg"/>
-  <img src="your_relative_path_here_number_2_large_name" width="350"/>
+  <img src="screenshot/prototipo spiaggia2.jpg"/>
+  <img src="screenshot/prototipo spiaggia4.png"/>
 </p>
-![preview](screenshot/prototipo spiaggia.jpg)
-![preview](screenshot/prototipo spiaggia2.jpg)
-![preview](screenshot/prototipo spiaggia4.png)
 
 ### aggiunta del mare
-![preview](screenshot/prototipo spiaggia3.png)
-![preview](screenshot/mare.png)
-![preview](screenshot/mare2.png)
+<p align="center">
+  <img src="screenshot/prototipo spiaggia3.png"/>
+  <img src="screenshot/mare.png"/>
+  <img src="screenshot/mare2.png"/>
+</p>
 
 ### miglioramento texture e aggiunta cascata più nuvole
-![preview](screenshot/screen.png)
-![preview](screenshot/screen2.png)
-![preview](screenshot/screen3.png)
+<p align="center">
+  <img src="screenshot/screen.png"/>
+  <img src="screenshot/screen2.png"/>
+  <img src="screenshot/screen3.png"/>
+</p>
 
 ### miglioramento texture con implementazione wrapping
-![preview](screenshot/newTexture1.png)
-![preview](screenshot/newTexture2.png)
-![preview](screenshot/newTexture3.png)
+<p align="center">
+  <img src="screenshot/newTexture1.png"/>
+  <img src="screenshot/newTexture2.png"/>
+  <img src="screenshot/newTexture3.png"/>
+</p>
