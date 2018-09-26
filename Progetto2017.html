@@ -213,7 +213,7 @@
 			document.body.appendChild( stats.domElement );
 
 			// uncomment if you need to draw coordinate axes when building the scene
-			//Coordinates.drawAllAxes();
+			Coordinates.drawAllAxes();
 
 			controls = new THREE.OrbitControls( camera );
 			controls.addEventListener( 'change', Render );
@@ -431,8 +431,10 @@
 																					new THREE.MeshBasicMaterial({map:	new THREE.TextureLoader().load('textures/waterfall.jpg')}));
 			lago.position.set(26.1,15,20);
 			scene.add(lago);
-
-
+			/*
+			var lettoCascata = new THREE.Mesh(	new THREE.BoxGeometry(2,1,2),
+																					new THREE.MeshBasicMaterial({map:	new THREE.TextureLoader().load('textures/waterfall.jpg')}));
+																					*/
 			points1 = new Array();
 			points1.push(	new THREE.Vector3(27,20,21),
 										new THREE.Vector3(27-Math.sin(120*Math.PI/180), 20, 21+Math.cos(120*Math.PI/180)),
@@ -507,22 +509,55 @@
 			sharkPivot.position.set(0,4.5,-35);
 			shark.position.set(0,0,2);
 
-			//creazione Pesci:: dim, texture squame, texture pinne
-			fishPivot = new THREE.Object3D();
-			cFish1 = makeColoredFish( 1, new THREE.TextureLoader().load('textures/fishes/fish/squame/s1.jpg'),
-																	new THREE.TextureLoader().load('textures/fishes/fish/pinne/color1.jpg'));
-			/*cFish2 = makeColoredFish( 1, new THREE.TextureLoader().load('textures/fishes/fish/squame/s2.jpg'),
-																	new THREE.TextureLoader().load('textures/fishes/fish/pinne/color2.jpg'));
-			cFish3 = makeColoredFish( 1, new THREE.TextureLoader().load('textures/fishes/fish/squame/s3.jpg'),
-																	new THREE.TextureLoader().load('textures/fishes/fish/pinne/color3.jpg'));
-			cFish4 = makeColoredFish( 1, new THREE.TextureLoader().load('textures/fishes/fish/squame/s4.jpg'),
-																	new THREE.TextureLoader().load('textures/fishes/fish/pinne/color4.jpg'));*/
 
-			cFish1.applyMatrix(makeScaleMatrix4(0.1,0.1,0.1));
-			//cFish2.applyMatrix(makeScaleMatrix4(0.1,0.1,0.1));
-			fishPivot.add(cFish1);
-			scene.add(fishPivot);
-			fishPivot.position.set(10, 1.5, -30);
+			//creazione Pesci:: dim, texture squame, texture pinne
+			fishPivot1 = new THREE.Object3D();
+			fishPivot1.position.set(0, 1.5, -20);
+
+			fishPivot2 = new THREE.Object3D();
+			fishPivot2.position.set(-20, 1.5, -28);
+
+			fishPivot3 = new THREE.Object3D();
+			fishPivot3.position.set(-25, 1.5, -30);
+
+			fishPivot4 = new THREE.Object3D();
+			fishPivot4.position.set(16, 1.5, -30);
+
+
+			cFish1 = {	mesh: makeColoredFish( 1, new THREE.TextureLoader().load('textures/fishes/fish/squame/s1.jpg'),
+																						new THREE.TextureLoader().load('textures/fishes/fish/pinne/color1.jpg')),
+									newPos:		THREE.Vector3(),
+									reached:	true,
+									speed:		0.05	};
+
+			cFish2 = {	mesh:	makeColoredFish( 1, new THREE.TextureLoader().load('textures/fishes/fish/squame/s2.jpg'),
+																						new THREE.TextureLoader().load('textures/fishes/fish/pinne/color2.jpg')),
+									newPos:	 THREE.Vector3(),
+									reached: true,
+									speed:	 0.02	};
+			cFish3 = {	mesh:	makeColoredFish( 1, new THREE.TextureLoader().load('textures/fishes/fish/squame/s3.jpg'),
+																						new THREE.TextureLoader().load('textures/fishes/fish/pinne/color3.jpg')),
+									newPos:	 THREE.Vector3(),
+									reached: true,
+									speed:	 0.04	};
+			cFish4 = {	mesh:	makeColoredFish( 1, new THREE.TextureLoader().load('textures/fishes/fish/squame/s4.jpg'),
+																						new THREE.TextureLoader().load('textures/fishes/fish/pinne/color4.jpg')),
+									newPos:	 THREE.Vector3(),
+									reached: true,
+									speed:	 0.06	};
+
+			cFish1.mesh.applyMatrix(makeScaleMatrix4(0.1,0.1,0.1));
+			cFish2.mesh.applyMatrix(makeScaleMatrix4(0.1,0.1,0.1));
+			cFish3.mesh.applyMatrix(makeScaleMatrix4(0.1,0.1,0.1));
+			cFish4.mesh.applyMatrix(makeScaleMatrix4(0.1,0.1,0.1));
+
+			fishPivot1.add(cFish1.mesh);
+			fishPivot2.add(cFish2.mesh);
+			fishPivot3.add(cFish3.mesh);
+			fishPivot4.add(cFish4.mesh);
+
+			scene.add(fishPivot1, fishPivot2, fishPivot3, fishPivot4);
+
 
 			//inizializzazione tempi
 			t0 = Date.now();
@@ -694,6 +729,10 @@
 			animazioneAcqua();
 
 			rdmSwim(cFish1);
+			rdmSwim(cFish2);
+			rdmSwim(cFish3);
+			rdmSwim(cFish4);
+
 			horizontalSwim(sharkPivot);
 
 			controls.update();
